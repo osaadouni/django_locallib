@@ -1,0 +1,33 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Librarian Page{% endblock %}
+
+{% block content %}
+
+    <h1>Librarian page - All borrowed books</h1>
+
+    {% if bookinstance_list %}
+        <ul>
+            {% for bookinst in bookinstance_list %}
+                <li class="{% if bookinst.is_overdue %}text-danger{% endif %}">
+                   <a href="{% url 'book-detail' bookinst.book.pk %}" class="{% if bookinst.is_overdue %}text-secondary{% endif %}">
+                       {{ bookinst.book.title }}
+                   </a> ({% if bookinst.is_overdue %}Overdue: {% endif %}{{ bookinst.due_back }})  - ({{ bookinst.borrower.get_full_name }})
+
+                    {% if bookinst.is_overdue %}
+                        <a href="{% url 'book-return' bookinst.id %}" class="text-info">Return book (ID: {{ bookinst.id }})</a>
+                    {% endif %}
+
+                    {% if perms.catalog.can_mark_returned  %}
+                        - <a href="{% url 'renew-book-librarian' bookinst.id %}">Renew</a>
+                    {% endif %}
+
+                </li>
+
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>There are no books borrowed.</p>
+    {% endif %}
+
+{% endblock %}
