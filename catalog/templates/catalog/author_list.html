@@ -1,20 +1,69 @@
-{% extends 'base_generic.html' %}
+        {% extends 'base_generic.html' %}
 
 {% block title %}My Authors{% endblock %}
 
 
 {% block content %}
-    <h1>Author List</h1>
-    {% if author_list %}
-        <ul>
-        {% for author in author_list %}
-            <li>
-                <a href="{{  author.get_absolute_url }}">{{ author.first_name }} {{ author.last_name }}</a>
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>There are no authors in the library.</p>
-    {% endif %}
+    <div class="container mt-3">
+    <div class="card" style="width:38rem;">
+        <div class="card-header">
+            <h5 class="card-title float-left">Author List</h5>
+            <a class="btn btn-primary float-right" href="{% url 'author-create'  %}" role="button">
+                Add <i class="fa fa-plus-square" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="card-body">
+        {% if author_list %}
+            <table class="table">
+            <thead>
+               <tr>
+                   <th>Name </th>
+                   <th>Date of birth </th>
+                   <th>Actions</th>
+
+               </tr>
+            </thead>
+            <tbody>
+            {% for author in author_list %}
+                <tr>
+                <td>
+                    <a href="{{  author.get_absolute_url }}">{{ author.first_name }} {{ author.last_name }}</a>
+                </td>
+                <td>
+                    {{ author.date_of_birth }}
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Author Btn List">
+                        <a class="btn btn-secondary" href="{% url 'author-update' author.pk %}" role="button">
+                            Edit <i class="fa fa-pencil-square-o"></i>
+                        </a>
+                        <a class="btn btn-danger" href="{% url 'author-delete' author.pk %}" role="button">
+                            Delete <i class="fa fa-trash-o"></i>
+                        </a>
+                    </div>
+                </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+
+            </table>
+            {% comment %}
+            <ul>
+            {% for author in author_list %}
+                <li>
+                    <a href="{{  author.get_absolute_url }}">{{ author.first_name }} {{ author.last_name }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+            {% endcomment %}
+
+        {% else %}
+            <p>There are no authors in the library.</p>
+        {% endif %}
+        </div>
+    </div>
+    </div>
+
 
 {% endblock %}

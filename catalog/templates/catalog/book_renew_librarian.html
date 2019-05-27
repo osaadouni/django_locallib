@@ -10,14 +10,15 @@
                 <p>Borrower: {{ book_instance.borrower }}</p>
                 <p {% if book_instance.is_overdue %}class="text-danger"{% endif %}>Due date: {{ book_instance.due_back }}</p>
 
-                <form class="" method="post">
+                {{ form.non_field_errors }}
+                <form class="" method="post" novalidate>
                     {% csrf_token %}
-                    <table class="table">
-                        {{ form|crispy }}
-                    </table>
+                    {{ form|crispy }}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
         </div>
     </div>
+    {{ form.media }}
 {% endblock %}
+

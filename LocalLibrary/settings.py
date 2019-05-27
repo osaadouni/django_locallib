@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     # third party
     'django_extensions',
     'crispy_forms',
+    'bootstrap4',
+    'bootstrap_datepicker_plus',
 
     # local
     'catalog.apps.CatalogConfig',

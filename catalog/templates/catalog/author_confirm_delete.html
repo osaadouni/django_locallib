@@ -1,0 +1,26 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+     <div class="container mt-3">
+
+    <div class="card" style="width:38rem;">
+        <div class="card-header">
+            Delete author #{{ author.pk }}
+            <a href="{% url 'authors' %}" class="btn btn-primary float-right" role="button">List</a>
+        </div>
+        <div class="card-body">
+            <p class="card-text">
+                Are you sure you want to delete the author: {{ author }} ?
+            </p>
+            <form action="" method="post" novalidate>
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger float-right">Yes, delete.</button>
+            </form>
+
+        </div>
+    </div>
+     </div>
+
+
+{% endblock %}
