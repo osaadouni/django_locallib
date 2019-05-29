@@ -1,4 +1,4 @@
-{% load bootstrap4 %}
+    {% load bootstrap4 %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,12 +70,14 @@
              {% endblock %}
 
              <p class="mt-5">
-                 {{ perms  }}
-                 {% if perms.catalog.can_mark_returned %}
-                     <!-- we can mark a BookInstance as returned -->
-                     <!-- Perhaps add code link to 'book return' view here. -->
-                     <p>perms.catalog.can_mark_returned</p>
-                 {% endif  %}
+                 {% if perms.catalog %}
+                     {{ perms.catalog  }}
+                     {% if perms.catalog.can_mark_returned %}
+                         <!-- we can mark a BookInstance as returned -->
+                         <!-- Perhaps add code link to 'book return' view here. -->
+                         <p>perms.catalog.can_mark_returned</p>
+                     {% endif  %}
+                 {% endif %}
              </p>
 
          </div>

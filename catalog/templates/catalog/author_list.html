@@ -4,11 +4,11 @@
 
 
 {% block content %}
-    <div class="container mt-3">
+    <div class="container-fluid mt-3">
     <div class="card" style="width:38rem;">
         <div class="card-header">
-            <h5 class="card-title float-left">Author List</h5>
-            <a class="btn btn-primary float-right" href="{% url 'author-create'  %}" role="button">
+            Author List
+            <a class="btn btn-primary float-right btn-sm" href="{% url 'author-create'  %}" role="button">
                 Add <i class="fa fa-plus-square" aria-hidden="true"></i>
             </a>
         </div>
@@ -34,10 +34,10 @@
                 </td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Author Btn List">
-                        <a class="btn btn-secondary" href="{% url 'author-update' author.pk %}" role="button">
+                        <a class="btn btn-secondary btn-sm" href="{% url 'author-update' author.pk %}" role="button">
                             Edit <i class="fa fa-pencil-square-o"></i>
                         </a>
-                        <a class="btn btn-danger" href="{% url 'author-delete' author.pk %}" role="button">
+                        <a class="btn btn-danger btn-sm" href="{% url 'author-delete' author.pk %}" role="button">
                             Delete <i class="fa fa-trash-o"></i>
                         </a>
                     </div>

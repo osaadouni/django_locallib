@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from bootstrap_datepicker_plus import DatePickerInput
 
-from .models import BookInstance
+from .models import BookInstance, Book
 
 
 class RenewBookForm(forms.Form):
@@ -56,3 +56,12 @@ class RenewBookModelForm(forms.ModelForm):
         fields = ['due_back']
         labels = {'due_back': _('New renewal date')}
         help_texts = {'due_back': _('Enter a date between now and 4 weeks (default 3).')}
+
+
+
+class BookModelForm(forms.ModelForm):
+
+    class Meta:
+        model = Book
+        #fields = '__all__'
+        fields = ['title', 'summary', 'isbn', 'genre', 'language']

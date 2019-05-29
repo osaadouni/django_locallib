@@ -8,10 +8,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test, per
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
+from django.views import View
 
 
 from .models import Book, Author, BookInstance, Genre, Language
-from .forms import RenewBookForm, RenewBookModelForm
+from .forms import RenewBookForm, RenewBookModelForm, BookModelForm
 
 
 # Create your views here.
@@ -69,7 +70,7 @@ def index(request):
 
 
 class BookListView(LoginRequiredMixin,
-                   UserPassesTestMixin,
+                   #UserPassesTestMixin,
                    ListView):
     model = Book
     #context_object_name = 'my_book_list' # Your own name for the list as a template variable
@@ -85,14 +86,39 @@ class BookListView(LoginRequiredMixin,
     #redirect_field_name = 'redirect_to'
 
     def test_func(self):
+        print("BookListView::test_func()")
         #return self.request.user.email.endswith('@amstelnet.com')
         return True
 
     def get_queryset(self):
+        print("BookListView::get_queryset()")
         #return Book.objects.filter(title__icontains='war')[:5] # Get 5 books containing the title war
         return Book.objects.all().order_by('title')[:25] # Get 25 books containing the title war
 
+    def get_template_names(self):
+        print('BookListView::get_template_names()')
+        return [self.template_name]
+
+    def dispatch(self, *args, **kwargs):
+        print('BookListView::dispatch()')
+        print(f"BookListView::self.request.user: {self.request.user}")
+        print(f"BookListView::self.template_name: {self.template_name}")
+
+        if self.request.user.groups.filter(name__icontains='librarian').exists():
+            self.template_name = 'catalog/book_list_librarian.html'
+        print(f"BookListView::self.template_name: {self.template_name}")
+
+        return super().dispatch(*args, **kwargs)
+
+
+    def get(self, request, *args, **kwargs):
+        print("BookListView::get()")
+        print(f"BookListView::request.user: {request.user}")
+        print(f"BookListView::self.template_name: {self.template_name}")
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
+        print("BookListView::get_context_data()")
         # Call the base implementation first to get the context
         context = super(BookListView, self).get_context_data(**kwargs)
         # Create any data and add it to the context
@@ -270,4 +296,100 @@ class AuthorDelete(LoginRequiredMixin,
     model = Author
     success_url = reverse_lazy('authors')
     permission_required = 'catalog.can_mark_returned'
+
+
+class WorksAuthorBookAddView(LoginRequiredMixin,
+                        PermissionRequiredMixin,
+                        View):
+    # model = Book
+    #fields = '__all__'
+    form_class = BookModelForm
+    fields = ['title', 'summary', 'isbn', 'genre', 'language']
+    permission_required = 'catalog.can_mark_returned'
+    template_name = 'catalog/author_book_add_form.html'
+
+    #def get_queryset(self):
+    #    books = Book.objects.none()
+    #    return books
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        print('get()')
+
+        context = {'form': form, 'author': self.author } # self.get_context_data(*args, **kwargs)
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        print('post()')
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            print('form is valid')
+            book = form.save(commit=False)
+            book.author = self.author
+            book.save()
+            print(f"book.id: {book.id}")
+            print("redirect to author-detail")
+            return HttpResponseRedirect(reverse('author-detail', args=[str(self.author.pk)]))
+
+        context = {'form': form, 'author': self.author } # self.get_context_data(*args, **kwargs)
+        return render(request, self.template_name, context)
+
+
+
+    def dispatch(self, *args, **kwargs):
+        print('dispatch()')
+        self.author = get_object_or_404(Author, pk=kwargs['pk'])
+        print(f"self.author: {self.author}")
+        #self.object = self.get_object()
+
+        return super(AuthorBookAddView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+         context_data = super(AuthorBookAddView, self).get_context_data(*args, **kwargs)
+         context_data['author'] = self.author
+         #self.object = self.get_object()
+         #self.object.author = self.author
+         context_data['action'] = 'Add'
+         return context_data
+
+    def form_valid(self, form):
+        form.instance.author = self.author
+        return super().form_valid(form)
+
+        #book = form.save(commit=False)
+        #book.author = self.author#
+        #book.save()
+        #response = super(AuthorBookAddView, self).form_valid(form)
+
+        # Do something with self.object
+        #return response
+
+
+
+class AuthorBookAddView(LoginRequiredMixin,
+                        PermissionRequiredMixin,
+                        CreateView):
+
+    form_class = BookModelForm
+    #permission_required = 'catalog.can_mark_returned'
+    permission_required = 'catalog.add_book'
+    template_name = 'catalog/author_book_add_form.html'
+
+    def dispatch(self, *args, **kwargs):
+        print('dispatch()')
+        self.author = get_object_or_404(Author, pk=kwargs['pk'])
+        print(f"self.author: {self.author}")
+        return super(AuthorBookAddView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context_data = super(AuthorBookAddView, self).get_context_data(*args, **kwargs)
+        context_data['author'] = self.author
+        context_data['action'] = 'Add'
+        return context_data
+
+    def form_valid(self, form):
+        form.instance.author = self.author
+        return super().form_valid(form)
+
 

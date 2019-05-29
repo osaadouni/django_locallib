@@ -10,11 +10,9 @@
     <div class="card" style="width:38rem;">
         <div class="card-header">
             Book list
-            {% comment %}
             <a href="{% url 'book-create' %}" class="btn btn-primary btn-sm float-right" role="button">Add book
                 <i class="fa fa-plus-square" aria-hidden="true"></i>
             </a>
-            {% endcomment %}
         </div>
         <div class="card-body">
         {% if book_list %}
@@ -23,9 +21,7 @@
                     <tr>
                         <th>Title</th>
                         <th>Author</th>
-                        {% comment %}
                         <th>Actions</th>
-                        {% endcomment %}
                     </tr>
                 </thead>
                 <tbody>
@@ -36,8 +32,6 @@
                         </td>
 
                         <td>{{ book.author }}</td>
-
-                        {% comment %}
                         <td>
                             <div class="btn-group" role="group" aria-label="Book Btn List">
                                 <a class="btn btn-secondary btn-sm" href="{% url 'book-update' book.pk %}" role="button">Edit
@@ -48,9 +42,6 @@
                                 </a>
                             </div>
                          </td>
-                        {% endcomment %}
-
-
                     </tr>
                 {% endfor %}
 

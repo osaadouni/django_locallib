@@ -1,10 +1,10 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
-    <div class="container mt-3">
+    <div class="container-fluid mt-3">
     <div class="card" style="width:40rem;">
         <div class="card-header">
-            <h5>Author: {{ author.first_name }} {{ author.last_name }}</h5>
+            <strong>Author: </strong> {{ author.first_name }} {{ author.last_name }}
         </div>
         <div class="card-body">
             <div class="card-title">
@@ -16,9 +16,12 @@
         </div>
 
         <div class="card-body">
-            <h4 class="card-title">Books</h4>
-            <a href="{% url 'book-create' %}" class="btn btn-primary"  role="button">Add book</a>
+            Books
+            <a href="{% url 'author-book-add' author.pk %}" class="btn btn-primary btn-sm float-right"  role="button">Add book <i class="fa fa-plus-square-o"></i></a>
 
+
+            <div class="row mt-3">
+                <div class="col-sm-12  ">
             {% for book in author.book_set.all %}
                 <hr>
                 <p class="card-text"><strong><a href="{% url 'book-detail' book.pk %}">{{ book.title }} #{{ book.get_available_copies.count }}</a></strong> ({{ book.bookinstance_set.all.count }})</p>
@@ -26,6 +29,9 @@
             {% empty %}
                 <p>No books published by this author</p>
             {% endfor %}
+                </div>
+            </div>
+
         </div>
 
     </div>

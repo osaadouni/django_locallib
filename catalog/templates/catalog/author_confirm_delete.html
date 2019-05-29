@@ -2,12 +2,14 @@
 
 {% block content %}
 
-     <div class="container mt-3">
+     <div class="container-fluid mt-3">
 
     <div class="card" style="width:38rem;">
         <div class="card-header">
             Delete author #{{ author.pk }}
-            <a href="{% url 'authors' %}" class="btn btn-primary float-right" role="button">List</a>
+            <a href="{% url 'authors' %}" class="btn btn-primary float-right btn-sm" role="button">
+                  <i class="fa fa-list" aria-hidden="true"></i>
+                List</a>
         </div>
         <div class="card-body">
             <p class="card-text">
@@ -15,7 +17,7 @@
             </p>
             <form action="" method="post" novalidate>
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger float-right">Yes, delete.</button>
+                <button type="submit" class="btn btn-danger float-right">Yes, delete. <i class="fa fa-check"></i></button>
             </form>
 
         </div>
