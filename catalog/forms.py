@@ -69,6 +69,12 @@ class BookModelForm(forms.ModelForm):
 
 class BookInstanceModelForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['status'].initial = 'a'
+        self.fields['id'].widget.attrs['readonly'] = True
+
     class Meta:
         model = BookInstance
-        fields = '__all__'
+        fields = ('id', 'imprint', 'status')
+        #fields = '__all__'

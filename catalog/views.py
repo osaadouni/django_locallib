@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.contrib.auth.models import Group, Permission
+from django.core import paginator
 
 
 from .models import Book, Author, BookInstance, Genre, Language
@@ -432,6 +433,8 @@ class  BookCopyAddView(LoginRequiredMixin,
     form_class = BookInstanceModelForm
     permission_required = 'catalog.add_book'
     template_name = 'catalog/book_copy_add_form.html'
+    bookinstances_paginate_by = 5
+
 
     def dispatch(self, *args, **kwargs):
         print('dispatch()')
@@ -443,9 +446,23 @@ class  BookCopyAddView(LoginRequiredMixin,
         context_data = super().get_context_data(*args, **kwargs)
         context_data['book'] = self.book
         context_data['action'] = 'Add'
+
+        bookinstances_page = self.request.GET.get('bookinstane_page')
+        bookinstances = self.book.bookinstance_set.all()
+        bookinstances_paginator = paginator.Paginator(bookinstances, self.bookinstances_paginate_by)
+
+        # Catch invalid page numbers
+        try:
+            bookinstances_page_obj = bookinstances_paginator.page(bookinstances_page)
+        except (paginator.PageNotInteger, paginator.EmptyPage):
+            bookinstances_page_obj = bookinstances_paginator.page(1)
+
+        context_data['bookinstances_page_obj'] = bookinstances_page_obj
         return context_data
 
     def form_valid(self, form):
         form.instance.book = self.book
         return super().form_valid(form)
 
+    def get_success_url(self,  **kwargs):
+        return reverse_lazy('book-detail', args=[str(self.book.pk)])

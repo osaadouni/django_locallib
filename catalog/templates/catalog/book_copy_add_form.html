@@ -3,17 +3,22 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-4">
-                {{ form.non_field_errors }}
-                <form class="" method="post" novalidate>
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
+
+<div class="container-fluid mt-3">
+    <div class="card" style="width:38rem;">
+        <div class="card-header">
+            {{ action }} copy of book: <strong>"{{ book.title }}"</strong>
+            <a href="{% url 'book-detail' book.pk %}" class="btn btn-primary btn-sm float-right" role="button"><i class="fa fa-list" aria-hidden="true"></i> Back</a>
         </div>
+        <div class="card-body">
+        <form action="" method="post" novalidate>
+                {% csrf_token %}
+                {{ form|crispy }}
+            <button type="submit" class="btn btn-primary float-right">Submit  <i class="fa fa-floppy-o" aria-hidden="true"></i> </button>
+        </form>
+        </div>
+    </div>
+
     </div>
 {% endblock %}
 
