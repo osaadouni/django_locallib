@@ -65,3 +65,10 @@ class BookModelForm(forms.ModelForm):
         model = Book
         #fields = '__all__'
         fields = ['title', 'summary', 'isbn', 'genre', 'language']
+
+
+class BookInstanceModelForm(forms.ModelForm):
+
+    class Meta:
+        model = BookInstance
+        fields = '__all__'

@@ -1,4 +1,4 @@
-        {% extends 'base_generic.html' %}
+            {% extends 'base_generic.html' %}
 
 {% block title %}My Authors{% endblock %}
 
@@ -8,9 +8,11 @@
     <div class="card" style="width:38rem;">
         <div class="card-header">
             Author List
-            <a class="btn btn-primary float-right btn-sm" href="{% url 'author-create'  %}" role="button">
-                Add <i class="fa fa-plus-square" aria-hidden="true"></i>
-            </a>
+            {% if perms.catalog and perms.catalog.add_book %}
+                <a class="btn btn-primary float-right btn-sm" href="{% url 'author-create'  %}" role="button">
+                    Add <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </a>
+            {% endif %}
         </div>
         <div class="card-body">
         {% if author_list %}
@@ -19,7 +21,9 @@
                <tr>
                    <th>Name </th>
                    <th>Date of birth </th>
-                   <th>Actions</th>
+                   {% if 'change_author' in user_permissions or  'delete_author' in user_permissions %}
+                       <th>Actions</th>
+                   {% endif %}
 
                </tr>
             </thead>
@@ -32,16 +36,25 @@
                 <td>
                     {{ author.date_of_birth }}
                 </td>
+
+                {% if 'change_author' in user_permissions or  'delete_author' in user_permissions %}
                 <td>
                     <div class="btn-group" role="group" aria-label="Author Btn List">
+                        {% if 'change_author' in user_permissions %}
                         <a class="btn btn-secondary btn-sm" href="{% url 'author-update' author.pk %}" role="button">
                             Edit <i class="fa fa-pencil-square-o"></i>
                         </a>
+                        {% endif %}
+
+                        {% if 'delete_author' in user_permissions %}
                         <a class="btn btn-danger btn-sm" href="{% url 'author-delete' author.pk %}" role="button">
                             Delete <i class="fa fa-trash-o"></i>
                         </a>
+                        {% endif %}
                     </div>
                 </td>
+                {% endif %}
+
                 </tr>
             {% endfor %}
 

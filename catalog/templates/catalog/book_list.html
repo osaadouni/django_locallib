@@ -10,11 +10,11 @@
     <div class="card" style="width:38rem;">
         <div class="card-header">
             Book list
-            {% comment %}
+            {% if 'add_book' in user_permissions %}
             <a href="{% url 'book-create' %}" class="btn btn-primary btn-sm float-right" role="button">Add book
                 <i class="fa fa-plus-square" aria-hidden="true"></i>
             </a>
-            {% endcomment %}
+            {% endif %}
         </div>
         <div class="card-body">
         {% if book_list %}
@@ -23,9 +23,9 @@
                     <tr>
                         <th>Title</th>
                         <th>Author</th>
-                        {% comment %}
+                        {% if 'change_book' in user_permissions or 'delete_book' in user_permissions %}
                         <th>Actions</th>
-                        {% endcomment %}
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -37,18 +37,23 @@
 
                         <td>{{ book.author }}</td>
 
-                        {% comment %}
+                        {% if 'change_book' in user_permissions or 'delete_book' in user_permissions %}
                         <td>
                             <div class="btn-group" role="group" aria-label="Book Btn List">
+                                {% if 'change_book' in user_permissions %}
                                 <a class="btn btn-secondary btn-sm" href="{% url 'book-update' book.pk %}" role="button">Edit
                                      <i class="fa fa-pencil-square-o"></i>
                                 </a>
+                                {% endif %}
+
+                                {% if 'delete_book' in user_permissions %}
                                 <a class="btn btn-danger btn-sm" href="{% url 'book-delete' book.pk %}" role="button">Delete
                                     <i class="fa fa-trash-o"></i>
                                 </a>
+                                {% endif %}
                             </div>
                          </td>
-                        {% endcomment %}
+                        {% endif %}
 
 
                     </tr>

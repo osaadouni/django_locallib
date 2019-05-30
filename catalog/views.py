@@ -9,10 +9,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, 
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
+from django.contrib.auth.models import Group, Permission
 
 
 from .models import Book, Author, BookInstance, Genre, Language
-from .forms import RenewBookForm, RenewBookModelForm, BookModelForm
+from .forms import RenewBookForm, RenewBookModelForm, BookModelForm, BookInstanceModelForm
 
 
 # Create your views here.
@@ -104,9 +105,12 @@ class BookListView(LoginRequiredMixin,
         print(f"BookListView::self.request.user: {self.request.user}")
         print(f"BookListView::self.template_name: {self.template_name}")
 
-        if self.request.user.groups.filter(name__icontains='librarian').exists():
-            self.template_name = 'catalog/book_list_librarian.html'
+        #if self.request.user.groups.filter(name__icontains='librarian').exists():
+        #    self.template_name = 'catalog/book_list_librarian.html'
         print(f"BookListView::self.template_name: {self.template_name}")
+
+        self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        print(self.user_permissions)
 
         return super().dispatch(*args, **kwargs)
 
@@ -122,7 +126,7 @@ class BookListView(LoginRequiredMixin,
         # Call the base implementation first to get the context
         context = super(BookListView, self).get_context_data(**kwargs)
         # Create any data and add it to the context
-        context['some_data'] = 'This is just some data'
+        context['user_permissions'] = self.user_permissions
         return context
 
 
@@ -195,16 +199,44 @@ class BookReturnView(LoginRequiredMixin, UpdateView):
         obj.save()
         return HttpResponseRedirect(prev_page)
 
-class AuthorListView(LoginRequiredMixin, ListView):
+
+class AuthorListView(LoginRequiredMixin,
+                     ListView):
     model = Author
     paginate_by = 5
+
+    def dispatch(self, *args, **kwargs):
+        print('AuthorListView::dispatch()')
+        print(f"AuthorListView::self.request.user: {self.request.user}")
+        self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        print(self.user_permissions)
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super().get_context_data(**kwargs)
+        # Create any data and add it to the context
+        context['user_permissions'] = self.user_permissions
+        return context
 
 
 class AuthorDetailView(LoginRequiredMixin,
                        DetailView):
     model = Author
 
+    def dispatch(self, *args, **kwargs):
+        print('AuthorListView::dispatch()')
+        print(f"AuthorListView::self.request.user: {self.request.user}")
+        self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        print(self.user_permissions)
+        return super().dispatch(*args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super().get_context_data(**kwargs)
+        # Create any data and add it to the context
+        context['user_permissions'] = self.user_permissions
+        return context
 
 
 class LoanedBooksByUserListView(LoginRequiredMixin,
@@ -392,4 +424,28 @@ class AuthorBookAddView(LoginRequiredMixin,
         form.instance.author = self.author
         return super().form_valid(form)
 
+
+class  BookCopyAddView(LoginRequiredMixin,
+                        PermissionRequiredMixin,
+                        CreateView):
+
+    form_class = BookInstanceModelForm
+    permission_required = 'catalog.add_book'
+    template_name = 'catalog/book_copy_add_form.html'
+
+    def dispatch(self, *args, **kwargs):
+        print('dispatch()')
+        self.book = get_object_or_404(Book, pk=kwargs['pk'])
+        print(f"self.book: {self.book}")
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context_data = super().get_context_data(*args, **kwargs)
+        context_data['book'] = self.book
+        context_data['action'] = 'Add'
+        return context_data
+
+    def form_valid(self, form):
+        form.instance.book = self.book
+        return super().form_valid(form)
 
