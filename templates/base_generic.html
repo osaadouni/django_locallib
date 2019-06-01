@@ -1,4 +1,4 @@
-    {% load bootstrap4 %}
+                    {% load bootstrap4 %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,6 +56,7 @@
              {% block pagination %}
 
                  {% if is_paginated %}
+                     <p> we have pagination </p>
 
                      <nav aria-label="page navigation example " class="ml-3 mt-3">
                          <ul class="pagination">
@@ -74,6 +75,53 @@
                      </nav>
 
                  {% endif %}
+
+                 {% if related_page_obj %}
+                     <p> we have a related object </p>
+                     {% if related_page_obj.has_other_pages %}
+                         <p> we have pagination for a related object </p>
+
+                        <nav aria-label="related page navigation example " class="ml-3 mt-3">
+
+                         <ul class="pagination">
+                            {% if related_page_obj.has_previous %}
+                                <li class="page-item">
+                                     <a class="page-link" href="?ro_page={{ related_page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                         <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                                     </a>
+                                </li>
+                                <li class="page-item"><a href="{{ request.path }}?ro_page=1" class="page-link">&laquo; first</a></li>
+                                <li class="page-item"><a href="{{ request.path }}?ro_page={{ related_page_obj.previous_page_number }}" class="page-link">previous</a></li>
+                            {% else %}
+                                <li class="page-item active disabled"><a href="#!" class="page-link"><i class="fa fa-chevron-left" aria-hidden="true"></i></a></li>
+                            {% endif %}
+                            {% for num in related_page_obj.paginator.page_range %}
+                                {% if related_page_obj.number == num %}
+                                    <li class="page-item active"><a href="#!" class="page-link">{{ num }}</a></li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?ro_page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if related_page_obj.has_next %}
+                             <li class="page-item"><a href="{{ request.path }}?ro_page={{ related_page_obj.next_page_number }}" class="page-link">next</a></li>
+                             <li class="page-item"><a href="{{ request.path }}?ro_page={{ related_page_obj.paginator.num_pages }}" class="page-link">last &raquo;</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?ro_page={{ related_page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active disabled"><a href="#!" class="page-link"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></li>
+                            {% endif %}
+                         </ul>
+                        </nav>
+
+                     {% endif %}
+
+                 {% endif %}
+
 
              {% endblock %}
 

@@ -134,6 +134,37 @@ class BookListView(LoginRequiredMixin,
 class BookDetailView(LoginRequiredMixin,
                      DetailView):
     model = Book
+    bookinstances_paginate_by = 5
+
+    def dispatch(self, *args, **kwargs):
+        print('dispatch()')
+        self.object = self.get_object()
+        print(f'self.object: {self.object}')
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context_data = super().get_context_data(*args, **kwargs)
+        context_data['book'] = self.object
+        context_data['action'] = 'Add'
+
+        # paginate related objects  - param: ?ro_page=<x>
+        ro_page = self.request.GET.get('ro_page')
+        bookinstances = self.object.bookinstance_set.all()
+        bookinstances_paginator = paginator.Paginator(bookinstances, self.bookinstances_paginate_by)
+
+        # Catch invalid page numbers
+        try:
+            bookinstances_page_obj = bookinstances_paginator.page(ro_page)
+        except (paginator.PageNotAnInteger, paginator.EmptyPage):
+            bookinstances_page_obj = bookinstances_paginator.page(1)
+
+        print(f"bookinstances_page_obj: {bookinstances_page_obj}")
+        print(f"bookinstances_page_obj.has_other_pages: {bookinstances_page_obj.has_other_pages()}")
+        print(f"bookinstances_paginator.num_pages: {bookinstances_paginator.num_pages}")
+
+        context_data['related_page_obj'] = bookinstances_page_obj
+
+        return context_data
 
 
 class BookCreateView(LoginRequiredMixin,
@@ -149,6 +180,7 @@ class BookCreateView(LoginRequiredMixin,
         # Create any data and add it to the context
         context['action'] = 'New'
         return context
+
 
 class BookUpdateView(LoginRequiredMixin,
                      PermissionRequiredMixin,
@@ -433,7 +465,6 @@ class  BookCopyAddView(LoginRequiredMixin,
     form_class = BookInstanceModelForm
     permission_required = 'catalog.add_book'
     template_name = 'catalog/book_copy_add_form.html'
-    bookinstances_paginate_by = 5
 
 
     def dispatch(self, *args, **kwargs):
@@ -446,18 +477,6 @@ class  BookCopyAddView(LoginRequiredMixin,
         context_data = super().get_context_data(*args, **kwargs)
         context_data['book'] = self.book
         context_data['action'] = 'Add'
-
-        bookinstances_page = self.request.GET.get('bookinstane_page')
-        bookinstances = self.book.bookinstance_set.all()
-        bookinstances_paginator = paginator.Paginator(bookinstances, self.bookinstances_paginate_by)
-
-        # Catch invalid page numbers
-        try:
-            bookinstances_page_obj = bookinstances_paginator.page(bookinstances_page)
-        except (paginator.PageNotInteger, paginator.EmptyPage):
-            bookinstances_page_obj = bookinstances_paginator.page(1)
-
-        context_data['bookinstances_page_obj'] = bookinstances_page_obj
         return context_data
 
     def form_valid(self, form):

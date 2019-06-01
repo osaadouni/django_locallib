@@ -1,0 +1,85 @@
+
+ <div class="card-body">
+    <h5 class="card-title">Copies
+     {% if perms and perms.catalog.add_book %}
+         <a href="{% url 'book-copy-add' book.pk %}" class="btn btn-primary btn-sm float-right"  role="button">Add copy <i class="fa fa-plus-square-o"></i></a>
+     {% endif %}
+    </h5>
+    <div class="row mt-3">
+        <div class="col-sm-12 col-md-12 ">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Status</th>
+                        <th>Imprint</th>
+                        <th>Due to be returned</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {# {% for copy in book.bookinstance_set.all %} #}
+                {% for copy in related_page_obj.object_list %}
+                    <tr>
+                        <td>
+                            <span class="text-muted">{{ copy.id }}</span>
+                        </td>
+                        <td>
+                            <span class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}text-warning{% endif %}">
+                                {{ copy.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {{ copy.imprint }}
+                        </td>
+                        <td>
+                            {% if copy.status == 'o' %}
+                                {{ copy.due_back }}
+                            {% else %}
+                                <i>na</i>
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            <a href="{% url 'book-copy-add' book.pk %}" class="btn btn-primary btn-sm float-right"  role="button">Add copy <i class="fa fa-plus-square-o"></i></a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+ </div>
+
+
+ <div class="card-body">
+         <h5 class="card-title">Copies
+            {% if perms and perms.catalog.add_book %}
+                <a href="{% url 'book-copy-add' book.pk %}" class="btn btn-primary btn-sm float-right"  role="button">Add copy <i class="fa fa-plus-square-o"></i></a>
+            {% endif %}
+
+
+         </h5>
+         <div class="row mt-3">
+             <div class="col-sm-12 col-md-12 ">
+                 {# {% for copy in book.bookinstance_set.all %} #}
+                 {% for copy in related_page_obj.object_list %}
+                        <hr>
+                        <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}text-warning{% endif %}">
+                            {{ copy.get_status_display }}
+                        </p>
+                        {% if copy.status != 'a' %}
+                            <p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>
+                        {% endif %}
+                        <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
+                        <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
+                 {% empty %}
+                     <p>No copies available</p>
+                 {% endfor %}
+             </div>
+         </div>
+
+ </div>
