@@ -14,7 +14,7 @@
                         <th>Status</th>
                         <th>Imprint</th>
                         <th>Due to be returned</th>
-                        <th>Actions</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,7 +42,9 @@
                         </td>
 
                         <td>
-                            <a href="{% url 'book-copy-add' book.pk %}" class="btn btn-primary btn-sm float-right"  role="button">Add copy <i class="fa fa-plus-square-o"></i></a>
+                            {% if copy.status == 'a' %}
+                               <a href="{% url 'book-copy-borrow' book.pk copy.id %}" class="btn btn-primary btn-sm float-right"  role="button">Borrow this book! <i class="fa fa-ticket"></i></a>
+                            {% endif %}
                         </td>
                     </tr>
 

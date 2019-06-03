@@ -14,7 +14,7 @@ from django.core import paginator
 
 
 from .models import Book, Author, BookInstance, Genre, Language
-from .forms import RenewBookForm, RenewBookModelForm, BookModelForm, BookInstanceModelForm
+from .forms import RenewBookForm, RenewBookModelForm, BookModelForm, BookInstanceModelForm, BorrowBookInstanceModelForm
 
 
 # Create your views here.
@@ -481,6 +481,78 @@ class  BookCopyAddView(LoginRequiredMixin,
 
     def form_valid(self, form):
         form.instance.book = self.book
+        return super().form_valid(form)
+
+    def get_success_url(self,  **kwargs):
+        return reverse_lazy('book-detail', args=[str(self.book.pk)])
+
+
+
+class  BookCopyBorrowView(LoginRequiredMixin,
+                       #PermissionRequiredMixin,
+                       UpdateView):
+
+    model = BookInstance
+    form_class = BorrowBookInstanceModelForm
+    #permission_required = 'catalog.add_book'
+    template_name = 'catalog/book_copy_borrow_form.html'
+
+
+    def get(self, request, *args, **kwargs):
+        print("BookCopyBorrowView()::get()")
+        #:w
+        #:self.object = None # self.get_object()
+        due_back_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        print(f"due_back_date: {due_back_date}")
+        print(f"self.object.id: {self.object.id}")
+        form = BorrowBookInstanceModelForm(initial={'id': self.object.id, 'due_back': due_back_date, 'book': self.book, 'isbn': self.book.isbn})
+
+        context = self.get_context_data(*args, **kwargs) # {'form': form}
+        context['form'] = form
+        print(context)
+        return render(request, self.template_name, context)
+
+    def dispatch(self, *args, **kwargs):
+        print("BookCopyBorrowView()::dispatch()")
+        self.book = get_object_or_404(Book, pk=kwargs['pk'])
+        self.object = get_object_or_404(BookInstance, pk=kwargs['id'])
+        self.object_id = kwargs['id']
+
+        print(f"[BookCopyBorrowView()::self.book: {self.book}")
+        print(f"[BookCopyBorrowView()::self.object: {self.object}")
+
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        print("BookCopyBorrowView()::post()")
+        self.object = self.get_object()
+        print(f"BookCopyBorrowView()::post():self.object: {self.object}")
+        return super().post(request, *args, **kwargs)
+
+    def get_object(self):
+        print("BookCopyBorrowView()::get_object()")
+        print(f"BookCopyBorrowView()::self.object_id: {self.object_id}")
+        return self.object # BookInstance.objects.get(pk=self.object_id)  # or request.POST
+
+    def get_context_data(self, *args, **kwargs):
+        print("BookCopyBorrowView()::get_context_data()")
+        context_data = super().get_context_data(*args, **kwargs)
+        context_data['book'] = self.book
+        context_data['action'] = 'Borrow'
+
+        return context_data
+
+    def form_valid(self, form):
+        print("BookCopyBorrowView()::form_valid()")
+        form.instance.book = self.book
+        form.instance.borrower = self.request.user
+        form.instance.status = 'o'
+
+        print(f"form.instance.id: {form.instance.id}")
+        print(f"form.instance.book: {form.instance.book}")
+        print(f"form.instance.borrower: {form.instance.borrower}")
+        print(f"form.instance.due_back: {form.instance.due_back}")
+        print(f"form.instance.status: {form.instance.status}")
         return super().form_valid(form)
 
     def get_success_url(self,  **kwargs):

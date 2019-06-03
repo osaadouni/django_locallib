@@ -78,3 +78,21 @@ class BookInstanceModelForm(forms.ModelForm):
         model = BookInstance
         fields = ('id', 'imprint', 'status')
         #fields = '__all__'
+
+
+class BorrowBookInstanceModelForm(forms.ModelForm):
+
+    isbn = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.fields['status'].initial = 'a'
+        #print(f"fields: {self.fields}")
+        self.fields['id'].widget.attrs['readonly'] = True
+        self.fields['due_back'].widget.attrs['readonly'] = True
+        self.fields['isbn'].widget.attrs['readonly'] = True
+
+    class Meta:
+        model = BookInstance
+        fields = ('book', 'isbn', 'id', 'due_back')
+        #fields = '__all__'
