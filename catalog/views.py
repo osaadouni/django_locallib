@@ -19,7 +19,8 @@ from .forms import RenewBookForm, RenewBookModelForm, BookModelForm, BookInstanc
 
 # Create your views here.
 def email_check(user):
-    return user.email.endswith('@example.com')
+    #return user.email.endswith('@example.com')
+    return True
 
 
 #@login_required(redirect_field_name='redirect_to')
@@ -110,7 +111,12 @@ class BookListView(LoginRequiredMixin,
         #    self.template_name = 'catalog/book_list_librarian.html'
         print(f"BookListView::self.template_name: {self.template_name}")
 
-        self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        print(f"BookListView::self.request.user: {self.request.user}")
+        if self.request.user.is_authenticated:
+            self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        else:
+            self.user_permissions = []
+
         print(self.user_permissions)
 
         return super().dispatch(*args, **kwargs)
@@ -240,9 +246,13 @@ class AuthorListView(LoginRequiredMixin,
 
     def dispatch(self, *args, **kwargs):
         print('AuthorListView::dispatch()')
-        print(f"AuthorListView::self.request.user: {self.request.user}")
-        self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
-        print(self.user_permissions)
+        print(f"AuthorListView::dispatch(): self.request.user: {self.request.user}")
+
+        if self.request.user.is_authenticated:
+            self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        else:
+            self.user_permissions = []
+        print(f"AuthorListView::dispatch() - self.user_permissions: {self.user_permissions}")
         return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -260,7 +270,11 @@ class AuthorDetailView(LoginRequiredMixin,
     def dispatch(self, *args, **kwargs):
         print('AuthorListView::dispatch()')
         print(f"AuthorListView::self.request.user: {self.request.user}")
-        self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        if self.request.user.is_authenticated:
+            self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
+        else:
+            self.user_permissions = []
+
         print(self.user_permissions)
         return super().dispatch(*args, **kwargs)
 
@@ -557,3 +571,16 @@ class  BookCopyBorrowView(LoginRequiredMixin,
 
     def get_success_url(self,  **kwargs):
         return reverse_lazy('book-detail', args=[str(self.book.pk)])
+
+
+
+# Genre Class
+class GenreDetailView(LoginRequiredMixin,
+                     DetailView):
+    model = Genre
+
+
+# Language Class
+class LanguageDetailView(LoginRequiredMixin,
+                         DetailView):
+    model = Language
