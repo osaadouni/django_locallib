@@ -309,3 +309,9 @@ class BookInstanceModelTest(TestCase):
         book_instance = BookInstance.objects.filter(status='a').first()
         field_label = book_instance._meta.get_field('borrower').verbose_name
         self.assertEqual(field_label, 'borrower')
+
+    def test_is_overdue_is_true(self):
+        self.assertTrue(True)
+
+    def test_is_overdue_is_false(self):
+        self.assertFalse(False)

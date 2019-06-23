@@ -17,27 +17,31 @@ class RenewBookForm(forms.Form):
     def clean_renewal_date(self):
         data = self.cleaned_data['renewal_date']
 
-
-        # Check if a date is not in the past.
+        # Check if a date is in the past - before today - and raise an error.
         if data < datetime.date.today():
             print('Invalid date - renewal in pase')
-            raise ValidationError(_('Invalid date - renewal in pase'))
+            raise ValidationError(_('Invalid date - renewal in past'))
 
-        # Check if a date is in the allowed range (+4 weeks from today).
+        # Check if a date is too far in the future beyond the range of
+        # the allowed range (more than 4 weeks from today) and raise an error
         if data > datetime.date.today() + datetime.timedelta(weeks=4):
-            print('Invalid date - renewal more than weeks ahead')
-            raise ValidationError(_('Invalid date - renewal more than weeks ahead'))
+            print('Invalid date - renewal more than 4 weeks ahead')
+            raise ValidationError(_('Invalid date - renewal more than 4 weeks ahead'))
 
-        # Remember to always return the cleaned data.
+        # Date is now OK. Remember to always return the cleaned data.
         return data
 
 
 class RenewBookModelForm(forms.ModelForm):
 
-    due_back = forms.DateField(widget=DatePickerInput(format="%Y-%m-%d"))
+    renewal_date = forms.DateField(help_text="Enter a date between now and 4 weeks (default 3).",
+                               widget=DatePickerInput(format="%Y-%m-%d"))
 
-    def clean_due_back(self):
-        data = self.cleaned_data['due_back']
+    def clean_renewal_date(self):
+        data = self.cleaned_data['renewal_date']
+        today = datetime.date.today()
+
+        #print(f"renewal_date:{data},  today: {today}")
 
         # Check if a date is not in the past
         if data < datetime.date.today():
@@ -53,9 +57,9 @@ class RenewBookModelForm(forms.ModelForm):
 
     class Meta:
         model = BookInstance
-        fields = ['due_back']
-        labels = {'due_back': _('New renewal date')}
-        help_texts = {'due_back': _('Enter a date between now and 4 weeks (default 3).')}
+        fields = ['renewal_date']
+        labels = {'renewal_date': _('New renewal date')}
+        help_texts = {'renewal_date': _('Enter a date between now and 4 weeks (default 3).')}
 
 
 

@@ -239,20 +239,20 @@ class BookReturnView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(prev_page)
 
 
-class AuthorListView(LoginRequiredMixin,
-                     ListView):
+#class AuthorListView(LoginRequiredMixin, ListView):
+class AuthorListView(ListView):
     model = Author
-    paginate_by = 5
+    paginate_by = 10
 
     def dispatch(self, *args, **kwargs):
-        print('AuthorListView::dispatch()')
-        print(f"AuthorListView::dispatch(): self.request.user: {self.request.user}")
+        #print('AuthorListView::dispatch()')
+        #print(f"AuthorListView::dispatch(): self.request.user: {self.request.user}")
 
         if self.request.user.is_authenticated:
             self.user_permissions = list(Permission.objects.filter(group__user=self.request.user).values_list('codename', flat=True))
         else:
             self.user_permissions = []
-        print(f"AuthorListView::dispatch() - self.user_permissions: {self.user_permissions}")
+        #print(f"AuthorListView::dispatch() - self.user_permissions: {self.user_permissions}")
         return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -290,7 +290,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin,
                                 ListView):
     """Generic class-based view listing books on loan to current user."""
     model = BookInstance
-    template_name = 'catalog/borrowed_books_user.html'
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
     paginate_by = 10
 
     def get_queryset(self):
@@ -327,8 +327,7 @@ def renew_book_librarian(request, pk):
         # Check if the form is valid
         if form.is_valid():
             # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
-            #book_instance.due_back = form.cleaned_data['renewal_date']
-            book_instance.due_back = form.cleaned_data['due_back']
+            book_instance.due_back = form.cleaned_data['renewal_date']
             book_instance.save()
 
             # redirect to a new URL
@@ -337,15 +336,14 @@ def renew_book_librarian(request, pk):
     # If this is a GET (or any other method) create the default form
     else:
         proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
-        #form = RenewBookForm(initial={'renewal_date': proposed_renewal_date})
-        form = RenewBookModelForm(initial={'due_back': proposed_renewal_date})
+        form = RenewBookModelForm(initial={'renewal_date': proposed_renewal_date})
 
     context = {
         'form': form,
         'book_instance': book_instance,
     }
 
-    return render(request, 'catalog/book_renew_librarian.html', context)
+    return render(request, 'catalog/book_renew_form.html', context)
 
 
 
